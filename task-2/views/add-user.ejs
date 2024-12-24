@@ -1,0 +1,38 @@
+<div class="card" style="width: fit-content;">
+    <div class="card-title">
+        <h2>Add User</h2>
+    </div>
+    <div class="card-content">
+        <form action="/add-user" method="post">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" required>
+                <% if (errors && errors.name) { %>
+                    <p class="error-msg"><%= errors.name %></p>
+                <% } %>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+                <% if (errors && errors.email) { %>
+                    <p class="error-msg"><%= errors.email %></p>
+                <% } %>
+            </div>
+            <div class="form-group">
+                <label for="password">Date of Birth</label>
+                <input type="date" id="dob" name="dob" required>
+                <% if (errors && errors.dob) { %>
+                    <p class="error-msg"><%= errors.dob %></p>
+                <% } %>
+            </div>
+            <div class="form-group">
+                <label for="password">Phone</label>
+                <input type="text" id="phone" name="phone" required>
+                <% if (errors && errors.phone) { %>
+                    <p class="error-msg"><%= errors.phone %></p>
+                <% } %>
+            </div>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</div>
