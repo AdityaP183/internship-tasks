@@ -14,6 +14,7 @@ const getEnv = (key, defaultValue) => {
 
 const PORT = getEnv("PORT", 4000);
 const NODE_ENV = getEnv("NODE_ENV", "development");
+const FRONTEND_URL = getEnv("FRONTEND_URL");
 const MONGO_URI = getEnv("MONGO_URI");
 const JWT_SECRET = getEnv("JWT_SECRET");
 const JWT_EXPIRES_IN = getEnv("JWT_EXPIRES_IN", "1d");
@@ -25,6 +26,7 @@ const CLOUDINARY_DEFAULT_FOLDER = getEnv("CLOUDINARY_DEFAULT_FOLDER");
 export {
 	PORT,
 	NODE_ENV,
+	FRONTEND_URL,
 	MONGO_URI,
 	JWT_SECRET,
 	JWT_EXPIRES_IN,

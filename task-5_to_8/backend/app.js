@@ -3,7 +3,8 @@ import dotenv from "dotenv";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import connectDatabase from "./config/db.js";
-import { NODE_ENV, PORT } from "./config/env.js";
+import { FRONTEND_URL, NODE_ENV, PORT } from "./config/env.js";
+import cors from "cors";
 
 import { authoriseUser } from "./middleware/auth.middleware.js";
 
@@ -17,6 +18,12 @@ dotenv.config();
 
 // Middlewares
 app.use(express.json());
+app.use(
+	cors({
+		origin: FRONTEND_URL,
+		credentials: true,
+	})
+);
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(cookieParser());
 app.use(express.static("public"));

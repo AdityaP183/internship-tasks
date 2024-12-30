@@ -9,14 +9,17 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import useAuth from "@/context/use-auth";
 import useIsMobile from "@/hooks/use-Ismobile";
 import { ArrowLeft } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Login() {
 	const isMobile = useIsMobile();
 	const navigate = useNavigate();
+	const { currentUser, login, loading, error } = useAuth();
 	const [formData, setFormData] = useState({
 		email: "",
 		password: "",
@@ -27,10 +30,25 @@ export default function Login() {
 		setFormData({ ...formData, [id]: value });
 	};
 
-	const handleLogin = (e) => {
+	const handleLogin = async (e) => {
 		e.preventDefault();
-		console.log(formData);
+		await login(formData);
 	};
+
+	useEffect(() => {
+		if (!loading) {
+			if (currentUser) {
+				// If logged in successfully
+				navigate("/");
+				toast.success("Login successful");
+			} else if (error) {
+				// If there's an error
+				if (error.status !== 401) {
+					toast.error("Login failed! Check your credentials");
+				}
+			}
+		}
+	}, [loading, currentUser, error, navigate]);
 
 	return (
 		<div
@@ -68,7 +86,7 @@ export default function Login() {
 					</CardHeader>
 					<CardContent>
 						<form
-							action={handleLogin}
+							onSubmit={handleLogin}
 							className="flex flex-col gap-4"
 						>
 							<div className="space-y-2">
@@ -91,11 +109,7 @@ export default function Login() {
 									onChange={handleFormChange}
 								/>
 							</div>
-							<Button
-								className="w-full mt-5"
-								onClick={() => navigate("/")}
-								type="submit"
-							>
+							<Button className="w-full mt-5" type="submit">
 								Login
 							</Button>
 						</form>
