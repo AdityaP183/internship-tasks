@@ -43,7 +43,7 @@ export const getWatchlist = async (req, res) => {
 				.json({ message: "Watchlist id is required" });
 		}
 
-		const watchlist = await Watchlist.find({ _id: id, owner });
+		const watchlist = await Watchlist.findOne({ _id: id, owner });
 
 		res.status(200).json({ data: watchlist });
 	} catch (error) {

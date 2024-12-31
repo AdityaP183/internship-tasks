@@ -9,10 +9,12 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import InfoHero from "@/components/app/info/info-hero";
 import MainLoader from "@/components/app/main-loader";
+import { getAllWatchlists } from "@/api/watchlist";
 
 export default function AnimeInfo() {
 	const { id } = useParams();
 	const isMobile = useIsMobile();
+	const [watchlists, setWatchlists] = useState([]);
 	const [fullDescription, setFullDescription] = useState(false);
 	const variables = {
 		id: parseInt(id),
@@ -33,6 +35,15 @@ export default function AnimeInfo() {
 			variables,
 		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	useEffect(() => {
+		const fetchWatchlists = async () => {
+			const data = await getAllWatchlists();
+			setWatchlists(data);
+		};
+
+		fetchWatchlists();
 	}, []);
 
 	if (loading) {
@@ -58,7 +69,10 @@ export default function AnimeInfo() {
 			{/* Content */}
 			{!loading && !error && animeInfo && (
 				<div className="w-full sm:w-[70%] mx-auto -translate-y-[150px] sm:-translate-y-[100px] px-2">
-					<InfoHero data={animeInfo.data.Media} />
+					<InfoHero
+						data={animeInfo.data.Media}
+						watchlists={watchlists}
+					/>
 					<div className="grid grid-cols-2 gap-2 p-1 mx-1 rounded-lg sm:mt-12 sm:grid-cols-4 bg-secondary">
 						<InfoBox
 							title={"Format"}

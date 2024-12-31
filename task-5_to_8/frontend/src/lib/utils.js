@@ -92,3 +92,25 @@ export const animeVariables = () => {
 
 	return vars;
 };
+
+export const watchlistQueryBuilder = (idArray) => {
+	let query = "";
+
+	idArray.forEach((id, index) => {
+		query += `anime${index + 1}: Media(id: ${id}) {
+            id
+            title {
+              userPreferred
+            }
+            coverImage {
+              extraLarge
+              large
+              color
+            }
+          }`;
+	});
+
+	return `query{
+        ${query}
+    }`;
+};

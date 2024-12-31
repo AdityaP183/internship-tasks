@@ -1,4 +1,3 @@
-import { listOptions } from "@/lib/utils";
 import LazyLoadingImage from "../lazy-loading-image";
 import {
 	Select,
@@ -8,15 +7,55 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Heart } from "lucide-react";
-import { useState } from "react";
+import { ListCheck, Plus } from "lucide-react";
+import { useEffect, useState } from "react";
 import DescriptionBox from "./info-description";
 import useIsMobile from "@/hooks/use-isMobile";
+import { addToWatchlist } from "@/api/watchlist";
+import toast from "react-hot-toast";
 
-export default function InfoHero({ data }) {
-	const [isLiked, setIsLiked] = useState(false);
+export default function InfoHero({ data, watchlists }) {
+	const [selectedWatchlist, setSelectedWatchlist] = useState("");
+	const [alreadyInWatchlist, setAlreadyInWatchlist] = useState(false);
 	const [fullDescription, setFullDescription] = useState(false);
 	const isMobile = useIsMobile();
+
+	// Check if the anime is already in a watchlist
+	useEffect(() => {
+		const existingWatchlist = watchlists.find((watchlist) =>
+			watchlist.animes.includes(data.id)
+		);
+		if (existingWatchlist) {
+			setSelectedWatchlist(existingWatchlist.title);
+			setAlreadyInWatchlist(true);
+		} else {
+			setSelectedWatchlist("");
+			setAlreadyInWatchlist(false);
+		}
+	}, [data.id, watchlists]);
+
+	const listOptions = watchlists.map((watchlist) => watchlist.title);
+
+	const handleAddToWatchlist = async () => {
+		if (alreadyInWatchlist) {
+			return;
+		}
+
+		try {
+			const selectedWatchlistId = watchlists.find(
+				(watchlist) =>
+					watchlist.title.toLowerCase() === selectedWatchlist
+			)._id;
+			const response = await addToWatchlist(selectedWatchlistId, {
+				id: data.id,
+			});
+			toast.success(response.message);
+			setAlreadyInWatchlist(true);
+		} catch (error) {
+			toast.error(error.message);
+			console.log(error);
+		}
+	};
 
 	return (
 		<div className="flex flex-col items-center w-full gap-4 sm:flex-row sm:items-start">
@@ -29,33 +68,50 @@ export default function InfoHero({ data }) {
 					/>
 				</div>
 				<div className="relative flex items-center justify-between w-full gap-3">
-					<Select>
+					<Select
+						defaultValue={selectedWatchlist}
+						onValueChange={setSelectedWatchlist}
+						disabled={alreadyInWatchlist}
+					>
 						<SelectTrigger className="w-full">
-							<SelectValue placeholder="Add" />
+							<SelectValue
+								placeholder={
+									alreadyInWatchlist
+										? selectedWatchlist
+										: "Add to watchlist"
+								}
+							/>
 						</SelectTrigger>
 						<SelectContent>
-							{listOptions.map((option) => (
-								<SelectItem
-									key={option}
-									value={option.toLowerCase()}
-								>
-									{option}
-								</SelectItem>
-							))}
+							{listOptions && listOptions.length > 0 ? (
+								listOptions.map((option) => (
+									<SelectItem
+										key={option}
+										value={option.toLowerCase()}
+									>
+										{option}
+									</SelectItem>
+								))
+							) : (
+								<div className="text-sm text-center text-muted-foreground">
+									No watchlists
+								</div>
+							)}
 						</SelectContent>
 					</Select>
 
 					<Button
 						variant="secondary"
-						onClick={() => setIsLiked(!isLiked)}
+						disabled={
+							selectedWatchlist === "" || alreadyInWatchlist
+						}
+						onClick={handleAddToWatchlist}
 					>
-						<Heart
-							className={`[&>svg]:size-6 font-extrabold cursor-pointer ${
-								isLiked
-									? "fill-primary text-primary"
-									: "text-text-50"
-							}`}
-						/>
+						{alreadyInWatchlist ? (
+							<ListCheck className="[&>svg]:size-6 font-extrabold cursor-pointer" />
+						) : (
+							<Plus className="[&>svg]:size-6 font-extrabold cursor-pointer" />
+						)}
 					</Button>
 				</div>
 			</div>
