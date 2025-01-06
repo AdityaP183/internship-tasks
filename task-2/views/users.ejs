@@ -10,8 +10,6 @@
                         <th scope="col">Id</th>
                         <th scope="col">Username</th>
                         <th scope="col">Email</th>
-                        <th scope="col">Date of Birth</th>
-                        <th scope="col">Age</th>
                         <th scope="col">Phone No.</th>
                         <th scope="col"><span class="sr-only">Action</span></th>
                     </tr>
@@ -22,9 +20,9 @@
                             <tr>
                                 <th scope="row"><%= i + 1 %></th>
                                 <td><%= user.name %></td>
-                                <td><%= user.email %></td>
-                                <td><%= user.dob %></td>
-                                <td><%= user.age %></td>
+                                <td>
+                                    <%= user.email %>
+                                </td>
                                 <td><%= user.phone %></td>
                                 <td>
                                     <a href="/edit-user/<%= user.id %>" class="edit-link">Edit</a>

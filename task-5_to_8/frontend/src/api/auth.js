@@ -1,5 +1,10 @@
 import api from "./api";
 
+const register = async (credentails) => {
+	const response = await api.post("/auth/register", credentails);
+	return response.data.data;
+};
+
 const login = async (credentails) => {
 	const response = await api.post("/auth/login", credentails);
 	return response.data.data;
@@ -15,4 +20,4 @@ const getCurrentUser = async () => {
 	return response.data;
 };
 
-export { login, logout, getCurrentUser };
+export { register, login, logout, getCurrentUser };

@@ -1,5 +1,5 @@
 import api from "@/api/api";
-import { login } from "@/api/auth";
+import { login, register } from "@/api/auth";
 import { createContext, useEffect, useState } from "react";
 
 const AuthContext = createContext();
@@ -29,11 +29,21 @@ const AuthProvider = ({ children }) => {
 		fetchCurrentUser();
 	}, []);
 
+	const handleRegister = async (data) => {
+		try {
+			const user = await register(data);
+			setError(null);
+			setCurrentUser(user);
+		} catch (error) {
+			setError(error);
+		}
+	};
+
 	const handleLogin = async (data) => {
 		try {
 			const user = await login(data);
-			setCurrentUser(user);
 			setError(null);
+			setCurrentUser(user);
 		} catch (error) {
 			setError(error);
 		}
@@ -42,8 +52,8 @@ const AuthProvider = ({ children }) => {
 	const handleLogout = async () => {
 		try {
 			await api.post("/auth/logout");
-			setCurrentUser(null);
 			setError(null);
+			setCurrentUser(null);
 		} catch (error) {
 			setError(error);
 		}
@@ -55,6 +65,7 @@ const AuthProvider = ({ children }) => {
 				currentUser,
 				loading,
 				error,
+				register: handleRegister,
 				login: handleLogin,
 				logout: handleLogout,
 			}}

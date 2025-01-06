@@ -9,24 +9,34 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import useAuth from "@/context/use-auth";
 import useIsMobile from "@/hooks/use-Ismobile";
 import { passwordValidation } from "@/lib/utils";
 import { ArrowLeft, Eye, EyeClosed } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Register() {
 	const isMobile = useIsMobile();
 	const navigate = useNavigate();
-
 	const [formValues, setFormValues] = useState({
-		fullName: "",
+		firstName: "",
+		lastName: "",
 		email: "",
 		password: "",
+		gender: "",
 	});
 	const [showPassword, setShowPassword] = useState(false);
 	const [passwordStrength, setPasswordStrength] = useState([]);
+	const { currentUser, loading, error, register } = useAuth();
 
 	const handleFormChange = (e) => {
 		const { id, value } = e.target;
@@ -60,16 +70,33 @@ export default function Register() {
 			? "bg-yellow-500"
 			: "bg-red-500";
 
-	function handleRegister(e) {
+	async function handleRegister(e) {
 		e.preventDefault();
 		console.log(formValues);
-		if (!formValues.fullName || !formValues.email || !formValues.password) {
+		if (
+			!formValues.firstName ||
+			!formValues.lastName ||
+			!formValues.email ||
+			!formValues.password
+		) {
 			toast.error("All fields are required");
 			return;
 		}
 
+		await register(formValues);
 		toast.success("Registration successful");
 	}
+
+	useEffect(() => {
+		if (!loading) {
+			if (currentUser) {
+				navigate("/login");
+				toast.success("Registration successful");
+			} else if (error) {
+				toast.error(error.message);
+			}
+		}
+	}, [loading, currentUser, error, navigate]);
 
 	return (
 		<div
@@ -80,7 +107,7 @@ export default function Register() {
 					: "transparent",
 			}}
 		>
-			<Card className="flex h-fit sm:h-[650px] w-[90%] sm:w-1/2 mx-auto rounded-lg overflow-hidden items-center">
+			<Card className="flex h-fit sm:h-[700px] w-[90%] sm:w-1/2 mx-auto rounded-lg overflow-hidden items-center">
 				{!isMobile && (
 					<div
 						className="flex-1 h-full"
@@ -108,10 +135,20 @@ export default function Register() {
 					<CardContent>
 						<form action="" className="flex flex-col gap-4">
 							<div className="space-y-2">
-								<Label htmlFor="fullName">Full Name</Label>
+								<Label htmlFor="firstName">First Name</Label>
 								<Input
-									id="fullName"
-									type="fullName"
+									id="firstName"
+									type="text"
+									value={formValues.firstName}
+									onChange={handleFormChange}
+								/>
+							</div>
+							<div className="space-y-2">
+								<Label htmlFor="lastName">Last Name</Label>
+								<Input
+									id="lastName"
+									type="text"
+									value={formValues.lastName}
 									onChange={handleFormChange}
 								/>
 							</div>
@@ -120,8 +157,33 @@ export default function Register() {
 								<Input
 									id="email"
 									type="email"
+									value={formValues.email}
 									onChange={handleFormChange}
 								/>
+							</div>
+							<div className="space-y-2">
+								<Label htmlFor="gender">Gender</Label>
+								<Select
+									onValueChange={(value) => {
+										setFormValues({
+											...formValues,
+											gender: value,
+										});
+									}}
+									defaultValue={formValues.gender}
+								>
+									<SelectTrigger>
+										<SelectValue placeholder="Select your gender" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="male">
+											Male
+										</SelectItem>
+										<SelectItem value="female">
+											Female
+										</SelectItem>
+									</SelectContent>
+								</Select>
 							</div>
 							<div className="space-y-2">
 								<div className="flex items-center justify-between">
@@ -158,6 +220,7 @@ export default function Register() {
 							<Button
 								className="w-full mt-5"
 								onClick={handleRegister}
+								disabled={loading}
 							>
 								Register
 							</Button>

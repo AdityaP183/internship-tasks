@@ -55,7 +55,7 @@ export const registerUser = async (req, res) => {
 		firstName,
 		lastName,
 		email,
-		password: await hashPassword(password),
+		password,
 		avatar: avatarUrl,
 	};
 

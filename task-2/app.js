@@ -29,17 +29,16 @@ app.get("/add-user", (req, res) => {
 });
 
 app.post("/add-user", (req, res) => {
-	const { name, email, dob, phone } = req.body;
+	const { name, email, phone } = req.body;
 	const errors = {};
 
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	const phoneRegex = /^\d{10}$/;
 
 	// Checking for empty fields
-	if (!name || !email || !dob || !phone) {
+	if (!name || !email || !phone) {
 		errors.name = !name ? "Name is required" : "";
 		errors.email = !email ? "Email is required" : "";
-		errors.dob = !dob ? "Date of birth is required" : "";
 		errors.phone = !phone ? "Phone is required" : "";
 		return res.render("add-user", { errors });
 	}
@@ -68,21 +67,10 @@ app.post("/add-user", (req, res) => {
 		return res.render("add-user", { errors });
 	}
 
-	// Checking for date of birth is a past date
-	const formattedDob = new Date(dob);
-	if (isNaN(formattedDob) || formattedDob >= Date.now()) {
-		errors.dob = "Date of birth must be in the past";
-		return res.render("add-user", { errors });
-	}
-
-	const age = Math.floor((Date.now() - formattedDob.getTime()) / 31557600000);
-
 	users.push({
 		id: Date.now(),
 		name,
 		email,
-		dob: formattedDob.toLocaleDateString(),
-		age,
 		phone,
 	});
 	res.redirect("/");
@@ -92,28 +80,24 @@ app.get("/edit-user/:id", (req, res) => {
 	const id = parseInt(req.params.id);
 	const user = users.find((u) => u.id === id);
 
-    // Formatting the date to set the default value
-    const formattedUser = {
-        ...user,
-        dob: new Date(user.dob).toISOString().split("T")[0],
-    };
-
-	res.render("edit-user", { user: formattedUser, errors: {} });
+	if (!user) {
+		return res.status(404).send("User not found");
+	}
+	res.render("edit-user", { user: user, errors: {} });
 });
 
 app.post("/edit-user/:id", (req, res) => {
 	const id = parseInt(req.params.id);
-	const { name, email, dob, phone } = req.body;
+	const { name, email, phone } = req.body;
 	const errors = {};
 
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	const phoneRegex = /^\d{10}$/;
 
 	// Checking for empty fields
-	if (!name || !email || !dob || !phone) {
+	if (!name || !email || !phone) {
 		errors.name = !name ? "Name is required" : "";
 		errors.email = !email ? "Email is required" : "";
-		errors.dob = !dob ? "Date of birth is required" : "";
 		errors.phone = !phone ? "Phone is required" : "";
 		return res.render("edit-user", {
 			user: { name, email, dob, phone },
@@ -139,18 +123,6 @@ app.post("/edit-user/:id", (req, res) => {
 		});
 	}
 
-	// Checking for date of birth is a past date
-	const formattedDob = new Date(dob);
-	if (isNaN(formattedDob) || formattedDob >= Date.now()) {
-		errors.dob = "Date of birth must be in the past";
-		return res.render("edit-user", {
-			user: { name, email, dob, phone },
-			errors,
-		});
-	}
-
-	const age = Math.floor((Date.now() - formattedDob.getTime()) / 31557600000);
-
 	const userIndex = users.findIndex((u) => u.id === id);
 	if (userIndex === -1) {
 		return res.status(404).send("User not found");
@@ -160,8 +132,6 @@ app.post("/edit-user/:id", (req, res) => {
 		id,
 		name,
 		email,
-		dob: formattedDob.toLocaleDateString(),
-		age,
 		phone,
 	};
 
@@ -182,6 +152,6 @@ app.get("/delete-user/:id", (req, res) => {
 	res.redirect("/");
 });
 
-app.listen(4000, () => {
+app.listen(3000, () => {
 	console.log("Server started on port 4000");
 });
